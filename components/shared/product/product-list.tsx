@@ -1,5 +1,5 @@
 import React from 'react';
-import { Product } from "@/db/sample-data";
+import { Product } from "@/types";
 import ProductCard from "@/components/shared/product/product-card";
 
 const ProductList = ({ data, title, limit }:

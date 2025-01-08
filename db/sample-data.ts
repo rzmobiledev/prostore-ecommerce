@@ -1,3 +1,5 @@
+import {Decimal} from "@prisma/client/runtime/binary";
+
 const sampleData = {
   products: [
     {
@@ -104,22 +106,5 @@ const sampleData = {
     },
   ],
 };
-
-export type Product = {
-  name: string
-  slug: string
-  category: string
-  description: string
-  images: string[]
-  price: number
-  brand: string
-  rating: number
-  numReviews: number
-  stock: number
-  isFeatured: boolean
-  banner: string | null
-}
-
-export const dataProducts = <T extends Product, K extends keyof T>(products: T[K]): T[K] => products
 
 export default sampleData;
