@@ -1,7 +1,7 @@
-import React from 'react'
+import React, {JSX} from 'react'
 import { cn } from '@/lib/utils'
 
-const ProductPrice = ({ value, className}: {value: number, className?: string}) => {
+const ProductPrice = ({ value, className}: {value: number, className?: string}): JSX.Element => {
     // ensure two decimal places
     const stringValue: string = value.toFixed(2)
     // get the int/float
