@@ -39,7 +39,6 @@ export const config = {
     adapter: PrismaAdapter(prisma),
     providers: [
         CredentialsProvider({
-            name: 'credentials',
             credentials: {
                 email: { type: 'email' },
                 password: { type: 'password' }
@@ -72,7 +71,6 @@ export const config = {
     ],
     callbacks: {
         async session({ session, token, user, trigger }: CallBackType): Promise<Session> {
-
             session.user.id = token.sub!
             if(trigger === 'update'){
                 session.user.name = user.name

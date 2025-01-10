@@ -1,15 +1,26 @@
-import {Metadata} from "next";
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
-import Image from "next/image";
-import {APP_NAME} from "@/lib/constants";
-import Link from "next/link";
-import CredentialsSignInForm from "@/app/(auth)/sign-in/credentials-signin-form";
+import {Metadata} from "next"
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
+import Image from "next/image"
+import {APP_NAME} from "@/lib/constants"
+import Link from "next/link"
+import CredentialsSignInForm from "@/app/(auth)/sign-in/credentials-signin-form"
+import { auth } from "@/auth"
+import {redirect} from "next/navigation";
+
+type SearchParams = {
+    searchParams: Promise<{callbackUrl: string}>
+}
 
 export const metadata: Metadata = {
     title: "Sign In"
 }
 
-const SignInPage = () => {
+const SignInPage = async(props: SearchParams) => {
+    const session = await auth()
+    const { callbackUrl } = await props.searchParams
+
+    if(session) redirect(callbackUrl || "/")
+
     return (
         <div className="w-full max-w-md mx-auto">
             <Card>
