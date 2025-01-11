@@ -4,9 +4,9 @@ import { prisma} from "@/db/prisma"
 import CredentialsProvider from "next-auth/providers/credentials"
 import {compareSync} from "bcrypt-ts-edge/browser"
 import type { NextAuthConfig } from "next-auth";
-import {type AdapterSession, AdapterUser} from "@auth/core/adapters";
+import {type AdapterSession} from "@auth/core/adapters";
 import {JWT} from "@auth/core/jwt";
-import type {Session} from "@auth/core/types";
+import type {Session, User} from "@auth/core/types";
 
 type UserType = {
     id?: string
@@ -18,14 +18,16 @@ type UserType = {
     expires?: Date
 }
 
-type CallBackType = {
+type CallBackSessionType = {
     session: {
-        user: AdapterUser
+        user: User & {role?: string}
     } & AdapterSession & {expires: string},
-    user: AdapterUser
-    token: JWT,
+    user: User & {role?: string}
+    token: JWT & {role?: string},
     trigger?: string
 }
+
+type JwtType = User & { role?: string}
 
 export const config = {
     pages: {
@@ -70,12 +72,32 @@ export const config = {
         })
     ],
     callbacks: {
-        async session({ session, token, user, trigger }: CallBackType): Promise<Session> {
+        async session({ session, token, user, trigger }: CallBackSessionType): Promise<Session> {
             session.user.id = token.sub!
+            session.user.role = token.role
+            session.user.name = token.name
+
+            console.log(token)
+
             if(trigger === 'update'){
                 session.user.name = user.name
             }
             return session
+        },
+
+        async jwt({token, user}: {token: JWT, user: JwtType}): Promise<JWT|null> {
+            if(user) {
+                token.role = user.role
+
+                if(user.name === 'NO_NAME') {
+                    token.name = user.email!.split('@')[0]
+                    await prisma.user.update({
+                        where: {id: user.id},
+                        data: {name: token.name}
+                    })
+                }
+            }
+            return token
         }
     }
 } satisfies NextAuthConfig
