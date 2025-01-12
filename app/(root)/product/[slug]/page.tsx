@@ -1,12 +1,13 @@
 import React, {JSX} from 'react'
 import { getProductBySlug } from '@/lib/actions/product.actions'
-import { notFound} from "next/navigation";
-import {Product} from "@/types";
+import { notFound} from "next/navigation"
+import {Product} from "@/types"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import ProductPrice from "@/components/shared/product/product-price";
-import ProductImages from "@/components/shared/product/product-images";
+import ProductPrice from "@/components/shared/product/product-price"
+import ProductImages from "@/components/shared/product/product-images"
+import AddToCart from "@/components/shared/product/add-to-cart"
+import {getMyCart} from "@/lib/actions/cart.actions"
 
 export default async function ProductDetailsPage(props: {
     params: Promise<{ slug: string }>
@@ -16,6 +17,8 @@ export default async function ProductDetailsPage(props: {
 
     const product: Product = await getProductBySlug<Product>(slug)
     if(!product) notFound()
+
+    const cart = await getMyCart()
 
     return (
         <>
@@ -60,7 +63,16 @@ export default async function ProductDetailsPage(props: {
                                 </div>
                                 { product.stock && (
                                     <div className="flex-center">
-                                        <Button className="w-full">Add To Cart</Button>
+                                        <AddToCart
+                                            cart={cart}
+                                            items={{
+                                            productId: product.id,
+                                            name: product.name,
+                                            slug: product.slug,
+                                            price: String(product.price),
+                                            qty: 1,
+                                            image: product.images![0]
+                                        }}/>
                                     </div>
                                 ) }
                             </CardContent>

@@ -4,9 +4,10 @@ import { prisma} from "@/db/prisma"
 import CredentialsProvider from "next-auth/providers/credentials"
 import {compareSync} from "bcrypt-ts-edge/browser"
 import type { NextAuthConfig } from "next-auth";
-import {type AdapterSession} from "@auth/core/adapters";
-import {JWT} from "@auth/core/jwt";
-import type {Session, User} from "@auth/core/types";
+import {type AdapterSession} from "@auth/core/adapters"
+import {JWT} from "@auth/core/jwt"
+import type {Session, User} from "@auth/core/types"
+import {NextRequest, NextResponse} from "next/server"
 
 type UserType = {
     id?: string
@@ -98,6 +99,22 @@ export const config = {
                 }
             }
             return token
+        },
+
+        authorized({request}: {request: NextRequest}): NextResponse<unknown>|Response|boolean{
+            if(!request.cookies.get('sessionCartId')){
+                const sessionCartId: string = crypto.randomUUID()
+                const newRequestHeaders = new Headers(request.headers)
+                const response: NextResponse<unknown> = NextResponse.next({
+                    request: {
+                        headers: newRequestHeaders
+                    }
+                })
+                response.cookies.set('sessionCartId', sessionCartId)
+                return response
+            } else{
+                return true
+            }
         }
     }
 } satisfies NextAuthConfig
