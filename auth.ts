@@ -66,8 +66,8 @@ export const config = {
                         email: user.email,
                         role: user.role
                     }
-                    return null
                 }
+                // If user does not exist or password does not match return null
                 return null
             }
         })
@@ -78,8 +78,6 @@ export const config = {
             session.user.role = token.role
             session.user.name = token.name
 
-            console.log(token)
-
             if(trigger === 'update'){
                 session.user.name = user.name
             }
@@ -88,6 +86,7 @@ export const config = {
 
         async jwt({token, user}: {token: JWT, user: JwtType}): Promise<JWT|null> {
             if(user) {
+                token.id = user.id
                 token.role = user.role
 
                 if(user.name === 'NO_NAME') {
