@@ -31,6 +31,7 @@ type CallBackSessionType = {
 type JwtType = User & { role?: string}
 
 export const config = {
+    trustHost: true,
     pages: {
         signIn: '/sign-in',
         error: '/sign-in',
