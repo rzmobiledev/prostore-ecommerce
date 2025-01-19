@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import {z} from "zod"
+import { CartItem } from '@/types';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -33,4 +34,36 @@ export function formatError(error: unknown){
   else {
     return 'Unknown error'
   }
+}
+
+export function sumQtyAndRemoveDuplicatedProducts(items: CartItem[]): CartItem[] {
+
+  if(items.length){
+    return items.reduce((prev: CartItem[], curr: CartItem): CartItem[] => {
+      const existing: CartItem | undefined = prev.find((x: CartItem): boolean => x.productId === curr.productId)
+      if(!existing){
+        prev.push(curr)
+      } else {
+        curr.qty += existing.qty
+      }
+      return prev
+    }, [])
+  }
+  return []
+}
+
+export function sumTotalProductInCart(items: CartItem[]): number {
+  return items.reduce((prev: number, item: CartItem): number => prev + item.qty, 0)
+}
+
+const CURRENCY_FORMATTER = new Intl.NumberFormat('en-US', {
+  currency: 'USD',
+  style: 'currency',
+  minimumFractionDigits: 2,
+})
+
+export function formatCurrency(amount: number | string | null | undefined){
+  if(typeof amount === "number") return CURRENCY_FORMATTER.format(amount)
+  else if (typeof amount === "string") return CURRENCY_FORMATTER.format(Number(amount))
+  else return 'NaN'
 }

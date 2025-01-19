@@ -10,6 +10,7 @@ import {revalidatePath} from "next/cache"
 import {Prisma} from "@prisma/client";
 
 const calcPrice = (items: CartItem[]) => {
+
     const itemsPrice: number = round2(
         items.reduce((acc: number, item: CartItem): number => acc + Number(item.price) * item.qty, 0)
     )
@@ -32,12 +33,8 @@ const toastResponse = (success: boolean, message: string) : {success: boolean, m
 }
 const session = async(): Promise<Session|null> => await auth()
 const sessionCartId = async(): Promise<string|undefined> => (await cookies()).get("sessionCartId")?.value
-const increaseProductQuantityInCart = (yourCartItems: CartItem[], product: CartItem, existItem: CartItem): void => {
-    yourCartItems.find((x: CartItem): boolean => x.productId === product.productId)!.qty = existItem.qty + 1
-}
 
 export async function addItemToCart(cartItem: CartItem){
-
     try{
         const sessCartId: string | undefined = await sessionCartId() as string
         if(!sessCartId) return{
@@ -72,20 +69,20 @@ export async function addItemToCart(cartItem: CartItem){
             return toastResponse(true, `${product.name} added to cart`)
         }
 
-        const existItem = (myCartItems.items as CartItem[]).find((x: CartItem): boolean => x.productId === cartItem.productId)
+        const existItem = (myCartItems.items).find((x: CartItem): boolean => x.productId === cartItem.productId)
         if(existItem) {
 
-            if(product.stock < existItem.qty + 1) {
+            if(product.stock < (existItem.qty + 1)) {
                 return toastResponse(false, 'Not enough stock')
             }
-            increaseProductQuantityInCart(myCartItems.items as CartItem[], cartItem, existItem)
-        }
+            (myCartItems.items as CartItem[]).find((x: CartItem): boolean => x.productId === existItem.productId)!.qty = existItem.qty + 1
+        } else {
+            if(product.stock < 1) {
+                return toastResponse(false, 'Not enough stock')
+            }
 
-        if(product.stock < 1) {
-            return toastResponse(false, 'Not enough stock')
+            myCartItems.items.push(cartItem)
         }
-
-        myCartItems.items.push(cartItem)
 
         await prisma.cart.update({
             where: {id: myCartItems.id},
@@ -126,14 +123,6 @@ export async function getMyCart() {
     })
 }
 
-const deleteItemFromCart = (cartItems: CartItem[], itemToDelete: CartItem): CartItem[] => {
-    return cartItems.filter((x: CartItem): boolean => x.productId !== itemToDelete.productId)
-}
-
-const decreaseQtyFromCart = (cartItems: CartItem[], itemToDelete: CartItem, productId: string) => {
-    cartItems.find((x: CartItem): boolean=> x.productId === productId)!.qty = itemToDelete.qty - 1
-}
-
 export async function removeItemFromCart(productId: string) {
     try{
         const product = await prisma.product.findFirst({
@@ -144,13 +133,13 @@ export async function removeItemFromCart(productId: string) {
         const getMyCartItems = await getMyCart()
         if(!getMyCartItems) return toastResponse(false, "Cart is empty")
 
-        const itemToDelete = (getMyCartItems.items as CartItem[]).find((x: CartItem): boolean => x.productId === productId)
+        const itemToDelete = (getMyCartItems.items).find((x: CartItem): boolean => x.productId === productId)
         if(!itemToDelete) return toastResponse(false, "Item not found")
 
         if(itemToDelete.qty === 1) {
-            getMyCartItems.items = deleteItemFromCart(getMyCartItems.items as CartItem[], itemToDelete)
+            getMyCartItems.items = getMyCartItems.items.filter((x: CartItem): boolean => x.productId !== itemToDelete.productId)
         } else {
-            decreaseQtyFromCart(getMyCartItems.items as CartItem[], itemToDelete, productId);
+            getMyCartItems.items.find((x: CartItem): boolean=> x.productId === productId)!.qty = itemToDelete.qty - 1
         }
 
         if(!getMyCartItems.items.length){
