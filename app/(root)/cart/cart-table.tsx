@@ -124,7 +124,7 @@ const CartTable = ({cart }: {cart?: Cart}) => {
           <Card>
             <CardContent className='p-4 gap-4'>
               <div className='pb-3 text-xl'>
-                Subtotal ({cart.items.length}):
+                Subtotal ({sumTotalProductInCart(cart.items)}):
                 <span className='font-bold'>
                   {formatCurrency(cart?.itemsPrice)}
                 </span>

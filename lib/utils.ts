@@ -53,7 +53,7 @@ export function sumQtyAndRemoveDuplicatedProducts(items: CartItem[]): CartItem[]
 }
 
 export function sumTotalProductInCart(items: CartItem[]): number {
-  return sumQtyAndRemoveDuplicatedProducts(items).map(item => item.qty)[0] || 0
+  return items.reduce((prev: number, item: CartItem): number => prev + item.qty, 0)
 }
 
 const CURRENCY_FORMATTER = new Intl.NumberFormat('en-US', {
