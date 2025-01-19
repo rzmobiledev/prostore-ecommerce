@@ -11,7 +11,6 @@ import { Table, TableBody, TableHeader, TableRow, TableCell, TableHead } from '@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
-  sumQtyAndRemoveDuplicatedProducts,
   formatCurrency,
   sumTotalProductInCart,
 } from '@/lib/utils';
