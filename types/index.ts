@@ -1,5 +1,11 @@
 import {z} from 'zod'
-import {insertProductSchema, insertUserSchema, cartItemSchema, insertCartSchema} from "@/lib/validators";
+import {
+    insertProductSchema,
+    insertUserSchema,
+    cartItemSchema,
+    insertCartSchema,
+    shippingAddressSchema,
+} from '@/lib/validators';
 
 export type Product = z.infer<typeof insertProductSchema> & {
     id: string
@@ -21,5 +27,6 @@ export type User = z.infer<typeof insertUserSchema> & {
 
 export type Cart = z.infer<typeof insertCartSchema> & {id?: string}
 export type CartItem = z.infer<typeof cartItemSchema>
+export type ShippingAddress = z.infer<typeof shippingAddressSchema>
 
 export const dataProducts = <T extends Product, K extends keyof T>(products: T[K]): T[K] => products

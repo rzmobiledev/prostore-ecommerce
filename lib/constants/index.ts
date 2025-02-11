@@ -8,9 +8,10 @@ export const signInDefaultValues = {
     password: '',
 }
 
-export const signUpDefaultValues = {
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
+export const shippingAddressDefaultValues = {
+    fullName: '',
+    streetAddress: '',
+    city: '',
+    postalCode: '',
+    country: '',
 }
